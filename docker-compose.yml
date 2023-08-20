@@ -21,6 +21,7 @@ services:
     # Какой volume подключить для этого контейнера
     volumes:
       - pg_data:/var/lib/postgresql/data
+
   # Имя и описание контейнера с бэкендом
   backend:
     # Из какого Dockerfile собирать образ для этого контейнера:
@@ -32,10 +33,17 @@ services:
       - static:/backend_static
     depends_on:
       - db
+
   # Имя третьего контейнера. Это контейнер с фронтендом
   frontend:
     env_file: .env
     build: ./frontend/
+    # Ключ command выполнит команду копирования файлов:
+    # cp -r /app/build/. /frontend_static/
+    command: cp -r /app/build/. /frontend_static/
+    # Связать директорию /frontend_static/ c volume static
+    volumes:
+      - static:/frontend_static
 
   # Добавляем новый контейнер: gateway.
   gateway:
@@ -48,5 +56,7 @@ services:
     # Ключ ports устанавливает
     # перенаправление всех запросов с порта 8000 хоста
     # на порт 80 контейнера.
+    depends_on:
+      - backend
     ports:
       - 8000:80
