@@ -98,8 +98,6 @@ jobs:
           # устанавливаем тег latest, чтобы потом
           # на сервере и в docker-compose.yml не указывать версию
           tags: ${{ secrets.DOCKER_USERNAME }}/taski_backend:latest
-
-
   frontend_tests:
     runs-on: ubuntu-latest
 
@@ -148,7 +146,6 @@ jobs:
           context: ./frontend/
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/taski_frontend:latest
-
   build_gateway_and_push_to_docker_hub:
     name: Push gateway Docker image to DockerHub
     runs-on: ubuntu-latest
@@ -172,7 +169,6 @@ jobs:
           push: true
           # Тут вместо username должен быть ваш логин на Docker Hub
           tags: ${{ secrets.DOCKER_USERNAME }}/taski_gateway:latest
-
   deploy:
     runs-on: ubuntu-latest
     needs:
@@ -195,7 +191,6 @@ jobs:
         passphrase: ${{ secrets.SSH_PASSPHRASE }}
         source: "docker-compose.production.yml"
         target: "taski"
-
     - name: Executing remote ssh commands to deploy
       uses: appleboy/ssh-action@master
       with:
@@ -208,14 +203,11 @@ jobs:
         # с которым установлено соединение
         script: |
           cd taski
-
           # Выполняет pull образов с Docker Hub
           sudo docker compose -f docker-compose.production.yml pull
-
           # Перезапускает все контейнеры в Docker Compose
           sudo docker compose -f docker-compose.production.yml down
           sudo docker compose -f docker-compose.production.yml up -d
-
           # Выполняет миграции и сбор статики
           sudo docker compose -f docker-compose.production.yml exec backend python manage.py migrate
           sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic
