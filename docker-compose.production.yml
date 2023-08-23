@@ -28,6 +28,8 @@ services:
   gateway:
     image: dim3p/taski_gateway  # Качаем с Docker Hub
     env_file: .env
+    depends_on:
+      - backend
     volumes:
       - static_volume:/staticfiles/
     ports:
